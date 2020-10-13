@@ -1,22 +1,18 @@
-variable "region" {}
-
-variable "database_password" {
-  type        = string
-  description = "The Redshift database password"
+variable "aws_profile" {
+  default = "development-eu-west-2"
+  type = string
 }
 
-variable "database_username" {
-  type        = string
-  description = "The Redshift database username"
+variable "region" {
+    type = string
 }
 
-variable "mongo_export_db_url" {
-  type        = string
-  description = "The MongoDB URL for the export Lambda"
+variable "vault_role_id" {
+    description = "The Hashicorp Vault role id"
+    type = string
 }
 
-variable "mongo_export_s3_path" {
-  type        = string
-  default     = "DMS-Output/lambda"
-  description = "The S3 bucket prefix for the export Lambda; will be prefixed with the bucket name automatically"
+variable "vault_secret_id" {
+    description = "The Hashicorp Vault secret id"
+    type = string
 }

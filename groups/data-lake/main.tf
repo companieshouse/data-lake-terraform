@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.region
-}
-
 terraform {
   backend "s3" {
   }
@@ -12,6 +8,10 @@ data "aws_security_group" "mongo_db" {
     name = "tag:Name"
     values = ["cidev-mongodb-dbs"]
   }
+}
+
+data "vault_generic_secret" "secrets" {
+  path = "applications/${var.aws_profile}/data-lake"
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_lambda_function.mongo_export MongoEFSToS3Export
@@ -30,8 +30,8 @@ resource "aws_lambda_function" "mongo_export" {
 
   environment {
     variables = {
-      MONGO_URL = var.mongo_export_db_url
-      S3_PATH   = "${aws_s3_bucket.data_lake.id}/${var.mongo_export_s3_path}"
+      MONGO_URL = data.vault_generic_secret.secrets.data.mongo_export_db_url
+      S3_PATH   = "${aws_s3_bucket.data_lake.id}/${data.vault_generic_secret.secrets.data.mongo_export_s3_path}"
     }
   }
 }
@@ -45,8 +45,8 @@ resource "aws_s3_bucket" "data_lake" {
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_redshift_cluster.data redshift-cluster-3
 resource "aws_redshift_cluster" "data" {
   cluster_identifier = "redshift-cluster-3"
-  master_password    = var.database_password
-  master_username    = var.database_username
+  master_password    = data.vault_generic_secret.secrets.data.database_password
+  master_username    = data.vault_generic_secret.secrets.data.database_username
   node_type          = "dc2.large"
 
   publicly_accessible = false
@@ -69,7 +69,7 @@ resource "aws_glue_crawler" "data" {
   role          = aws_iam_role.data_lake_glue.arn
 
   s3_target {
-    path = "s3://${aws_s3_bucket.data_lake.id}/${var.mongo_export_s3_path}"
+    path = "s3://${aws_s3_bucket.data_lake.id}/${data.vault_generic_secret.secrets.data.mongo_export_s3_path}"
   }
 
   configuration = <<EOF
@@ -88,8 +88,8 @@ resource "aws_glue_connection" "data" {
 
   connection_properties = {
     JDBC_CONNECTION_URL = "jdbc:redshift://${aws_redshift_cluster.data.endpoint}/${aws_redshift_cluster.data.database_name}"
-    PASSWORD            = var.database_password
-    USERNAME            = var.database_username
+    PASSWORD            = data.vault_generic_secret.secrets.data.database_password
+    USERNAME            = data.vault_generic_secret.secrets.data.database_username
   }
 
   physical_connection_requirements {
