@@ -1,0 +1,19 @@
+variable "hashicorp_vault_username" {
+  description = "Your Hashicorp Vault username"
+  type = string
+}
+
+variable "hashicorp_vault_password" {
+  description = "Your Hashicorp Vault password"
+  type = string
+}
+
+provider "vault" {
+  auth_login {
+    path = "auth/userpass/login/${var.hashicorp_vault_username}"
+
+    parameters = {
+      password = var.hashicorp_vault_password
+    }
+  }
+}

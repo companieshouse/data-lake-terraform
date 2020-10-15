@@ -1,0 +1,5 @@
+provider "vault" {
+    # Credentials read from:
+    #   ${VAULT_ADDR}
+    #   ${VAULT_TOKEN}
+}

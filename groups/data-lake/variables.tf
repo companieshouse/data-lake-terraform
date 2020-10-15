@@ -6,13 +6,3 @@ variable "aws_profile" {
 variable "region" {
     type = string
 }
-
-variable "vault_role_id" {
-    description = "The Hashicorp Vault role id"
-    type = string
-}
-
-variable "vault_secret_id" {
-    description = "The Hashicorp Vault secret id"
-    type = string
-}

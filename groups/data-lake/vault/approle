@@ -1,0 +1,20 @@
+variable "hashicorp_vault_role_id" {
+  description = "Your Hashicorp Vault role id"
+  type = string
+}
+
+variable "hashicorp_vault_secret_id" {
+  description = "Your Hashicorp Vault secret id"
+  type = string
+}
+
+provider "vault" {
+  auth_login {
+    path = "auth/approle/login"
+
+    parameters = {
+      role_id   = var.hashicorp_vault_role_id
+      secret_id = var.hashicorp_vault_secret_id
+    }
+  }
+}
