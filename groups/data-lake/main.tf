@@ -15,6 +15,7 @@ data "vault_generic_secret" "secrets" {
 }
 
 locals {
+  bucket                    = data.vault_generic_secret.secrets.data.bucket
   database_password         = data.vault_generic_secret.secrets.data.database_password
   database_username         = data.vault_generic_secret.secrets.data.database_username
   mongo_export_collection   = data.vault_generic_secret.secrets.data.mongo_export_collection
@@ -38,7 +39,7 @@ resource "aws_lambda_function" "mongo_export" {
 
   environment {
     variables = {
-      COLLECTION = local.mongo_export_collection 
+      COLLECTION = local.mongo_export_collection
       MONGO_URL = local.mongo_export_db_url
       S3_PATH   = "${aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
     }
@@ -47,7 +48,7 @@ resource "aws_lambda_function" "mongo_export" {
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_s3_bucket.data_lake aws-glue-datalakepre-london
 resource "aws_s3_bucket" "data_lake" {
-  bucket = "aws-glue-datalakepre-london"
+  bucket = local.bucket
   acl    = "private"
 }
 
