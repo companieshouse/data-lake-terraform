@@ -11,7 +11,7 @@ data "aws_security_group" "mongo_db" {
 }
 
 data "vault_generic_secret" "secrets" {
-  path = "applications/${var.aws_profile}/data-lake"
+  path = "applications/${var.aws_profile}/${var.service}"
 }
 
 locals {
