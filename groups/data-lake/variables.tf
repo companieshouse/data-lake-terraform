@@ -1,8 +1,10 @@
 variable "aws_profile" {
   default = "development-eu-west-2"
+  description = "The AWS profile name; used as a prefix for Vault secrets"
   type = string
 }
 
 variable "region" {
-    type = string
+  description = "The AWS region in which resources will be administered"
+  type = string
 }
