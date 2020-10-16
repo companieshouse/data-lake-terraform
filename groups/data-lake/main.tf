@@ -14,19 +14,12 @@ data "vault_generic_secret" "secrets" {
   path = "applications/${var.aws_profile}/data-lake"
 }
 
-# ------------------------------------------------------------------------------
-# Locals
-# ------------------------------------------------------------------------------
 locals {
   database_password = data.vault_generic_secret.secrets.data.database_password
   database_username = data.vault_generic_secret.secrets.data.database_username
   mongo_export_db_url = data.vault_generic_secret.secrets.data.mongo_export_db_url
   mongo_export_s3_path = data.vault_generic_secret.secrets.data.mongo_export_s3_path
 }
-
-# ------------------------------------------------------------------------------
-# Resources
-# ------------------------------------------------------------------------------
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_lambda_function.mongo_export MongoEFSToS3Export
 resource "aws_lambda_function" "mongo_export" {
