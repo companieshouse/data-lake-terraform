@@ -1,0 +1,57 @@
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_catalog_database.data 169942020521:efs-mongo-extract
+resource "aws_glue_catalog_database" "data" {
+  name = "efs-mongo-extract"
+}
+
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_crawler.data efs-mongo-extract-crawl
+resource "aws_glue_crawler" "data" {
+  database_name = aws_glue_catalog_database.data.name
+  name          = "efs-mongo-extract-crawl"
+  role          = aws_iam_role.data_lake_glue.arn
+
+  s3_target {
+    path = "s3://${aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
+  }
+
+  configuration = <<EOF
+{
+  "Version":1.0,
+  "Grouping": {
+    "TableGroupingPolicy": "CombineCompatibleSchemas"
+  }
+}
+EOF
+}
+
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_connection.data 169942020521:redshift_newcluster
+resource "aws_glue_connection" "data" {
+  name = "redshift_newcluster"
+
+  connection_properties = {
+    JDBC_CONNECTION_URL = "jdbc:redshift://${aws_redshift_cluster.data.endpoint}/${aws_redshift_cluster.data.database_name}"
+    PASSWORD            = local.database_password
+    USERNAME            = local.database_username
+  }
+
+  physical_connection_requirements {
+    availability_zone      = local.glue_availability_zone
+    security_group_id_list = [aws_security_group.data.id]
+    subnet_id              = local.glue_subnet_id
+  }
+}
+
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_job.data redshift_load_from_s3_deletefirst_v2
+resource "aws_glue_job" "data" {
+  name              = "redshift_load_from_s3_deletefirst_v2"
+  number_of_workers = 10
+  role_arn          = aws_iam_role.data_lake_glue.arn
+  worker_type       = "G.1X"
+
+  connections = [aws_glue_connection.data.name]
+
+  command {
+    script_location = local.glue_script_location
+  }
+
+  default_arguments = jsondecode(local.glue_arguments)
+}
