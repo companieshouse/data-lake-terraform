@@ -1,12 +1,12 @@
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_catalog_database.data 169942020521:efs-mongo-extract
 resource "aws_glue_catalog_database" "data" {
-  name = "efs-mongo-extract"
+  name = local.glue_catalog_database
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_crawler.data efs-mongo-extract-crawl
 resource "aws_glue_crawler" "data" {
   database_name = aws_glue_catalog_database.data.name
-  name          = "efs-mongo-extract-crawl"
+  name          = "${local.glue_catalog_database}-crawl"
   role          = aws_iam_role.data_lake_glue.arn
 
   s3_target {
@@ -29,8 +29,8 @@ resource "aws_glue_connection" "data" {
 
   connection_properties = {
     JDBC_CONNECTION_URL = "jdbc:redshift://${aws_redshift_cluster.data.endpoint}/${aws_redshift_cluster.data.database_name}"
-    PASSWORD            = local.database_password
-    USERNAME            = local.database_username
+    PASSWORD            = local.redshift_database_password
+    USERNAME            = local.redshift_database_username
   }
 
   physical_connection_requirements {
