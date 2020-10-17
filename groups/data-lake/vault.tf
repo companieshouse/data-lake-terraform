@@ -1,1 +1,1 @@
-vault/token
+vault-providers/token
