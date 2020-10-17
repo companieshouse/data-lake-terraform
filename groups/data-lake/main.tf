@@ -6,7 +6,7 @@ terraform {
 data "aws_security_group" "mongo_db" {
   filter {
     name = "tag:Name"
-    values = ["cidev-mongodb-dbs"]
+    values = [local.mongo_db_security_group_tag_filter]
   }
 }
 
@@ -15,12 +15,21 @@ data "vault_generic_secret" "secrets" {
 }
 
 locals {
-  bucket                    = data.vault_generic_secret.secrets.data.bucket
-  database_password         = data.vault_generic_secret.secrets.data.database_password
-  database_username         = data.vault_generic_secret.secrets.data.database_username
-  mongo_export_collection   = data.vault_generic_secret.secrets.data.mongo_export_collection
-  mongo_export_db_url       = data.vault_generic_secret.secrets.data.mongo_export_db_url
-  mongo_export_s3_path      = data.vault_generic_secret.secrets.data.mongo_export_s3_path
+  bucket                                = data.vault_generic_secret.secrets.data.bucket
+  database_password                     = data.vault_generic_secret.secrets.data.database_password
+  database_username                     = data.vault_generic_secret.secrets.data.database_username
+  glue_arguments                        = data.vault_generic_secret.secrets.data.glue_arguments
+  glue_availability_zone                = data.vault_generic_secret.secrets.data.glue_availability_zone
+  glue_script_location                  = data.vault_generic_secret.secrets.data.glue_script_location
+  glue_subnet_id                        = data.vault_generic_secret.secrets.data.glue_subnet_id
+  mongo_db_security_group_tag_filter    = data.vault_generic_secret.secrets.data.mongo_db_security_group_tag_filter
+  mongo_export_collection               = data.vault_generic_secret.secrets.data.mongo_export_collection
+  mongo_export_db_url                   = data.vault_generic_secret.secrets.data.mongo_export_db_url
+  mongo_export_s3_path                  = data.vault_generic_secret.secrets.data.mongo_export_s3_path
+  mongo_export_subnet_ids               = data.vault_generic_secret.secrets.data.mongo_export_subnet_ids
+
+  # TODO - Pull this in from network state rather than vault
+  vpc_id                                = data.vault_generic_secret.secrets.data.vpc_id
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_lambda_function.mongo_export MongoEFSToS3Export
@@ -31,9 +40,8 @@ resource "aws_lambda_function" "mongo_export" {
   runtime       = "nodejs10.x"
   timeout       = 303
 
-  # TODO replace hard-coded subnet identifier
   vpc_config {
-    subnet_ids         = ["subnet-0c909ef698555c089"]
+    subnet_ids         = split(",", local.mongo_export_subnet_ids)
     security_group_ids = [data.aws_security_group.mongo_db.id]
   }
 
@@ -103,10 +111,9 @@ resource "aws_glue_connection" "data" {
   }
 
   physical_connection_requirements {
-    # TODO replace hard-coded availability zone and subnet identifier
-    availability_zone      = "eu-west-2b"
+    availability_zone      = local.glue_availability_zone
     security_group_id_list = [aws_security_group.data.id]
-    subnet_id              = "subnet-0c4fb394c9c33b698"
+    subnet_id              = local.glue_subnet_id
   }
 }
 
@@ -120,16 +127,10 @@ resource "aws_glue_job" "data" {
   connections = [aws_glue_connection.data.name]
 
   command {
-    # TODO replace hard-coded script location
-    script_location = "s3://aws-glue-scripts-169942020521-eu-west-2/Paul_Forsyth/redshift_load_from_s3_deletefirst_v2"
+    script_location = local.glue_script_location
   }
 
-  default_arguments = {
-    # TODO replace hard-coded argument values
-    "--TempDir"             = "s3://aws-glue-temporary-169942020521-eu-west-2/Paul_Forsyth"
-    "--job-bookmark-option" = "job-bookmark-disable"
-    "--job-language"        = "python"
-  }
+  default_arguments = jsondecode(local.glue_arguments)
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role.data_lake_glue AWSGlueServiceRole-DataLakeGlue
@@ -261,8 +262,7 @@ resource "aws_security_group" "data" {
 
   # TODO add suitable resource name and rule descriptions
 
-  # TODO replace hard-coded VPC identifier
-  vpc_id = "vpc-074ff55ed5182e144"
+  vpc_id = local.vpc_id
 
   ingress {
     description = "Internal access"
