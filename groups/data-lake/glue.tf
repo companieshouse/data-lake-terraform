@@ -50,7 +50,7 @@ resource "aws_glue_job" "data" {
   connections = [aws_glue_connection.data.name]
 
   command {
-    script_location = local.glue_script_location
+    script_location = "s3://${local.glue_scripts_bucket_name}/redshift_load_from_s3_deletefirst_v2"
   }
 
   default_arguments = {

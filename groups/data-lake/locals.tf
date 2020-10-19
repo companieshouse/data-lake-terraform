@@ -6,7 +6,6 @@ locals {
   bucket                                = data.vault_generic_secret.secrets.data.bucket
   glue_availability_zone                = data.vault_generic_secret.secrets.data.glue_availability_zone
   glue_catalog_database                 = data.vault_generic_secret.secrets.data.glue_catalog_database
-  glue_script_location                  = data.vault_generic_secret.secrets.data.glue_script_location
   glue_scripts_bucket_name              = data.vault_generic_secret.secrets.data.glue_scripts_bucket_name
   glue_subnet_id                        = data.vault_generic_secret.secrets.data.glue_subnet_id
   glue_temporary_bucket_name            = data.vault_generic_secret.secrets.data.glue_temporary_bucket_name
