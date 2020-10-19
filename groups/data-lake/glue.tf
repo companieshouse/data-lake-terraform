@@ -38,6 +38,11 @@ resource "aws_glue_connection" "data" {
     security_group_id_list = [aws_security_group.data.id]
     subnet_id              = local.glue_subnet_id
   }
+
+  depends_on = [
+    aws_security_group.data
+  ]
+
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_glue_job.data redshift_load_from_s3_deletefirst_v2
