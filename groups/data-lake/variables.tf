@@ -1,5 +1,4 @@
 variable "aws_profile" {
-  default = "development-eu-west-2"
   description = "The AWS profile name; used as a prefix for Vault secrets"
   type = string
 }
