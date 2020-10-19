@@ -7,8 +7,10 @@ locals {
   glue_availability_zone                = data.vault_generic_secret.secrets.data.glue_availability_zone
   glue_catalog_database                 = data.vault_generic_secret.secrets.data.glue_catalog_database
   glue_scripts_bucket_name              = data.vault_generic_secret.secrets.data.glue_scripts_bucket_name
+  glue_scripts_bucket_path              = data.vault_generic_secret.secrets.data.glue_scripts_bucket_path
   glue_subnet_id                        = data.vault_generic_secret.secrets.data.glue_subnet_id
   glue_temporary_bucket_name            = data.vault_generic_secret.secrets.data.glue_temporary_bucket_name
+  glue_temporary_bucket_path            = data.vault_generic_secret.secrets.data.glue_temporary_bucket_path
   mongo_db_security_group_tag_filter    = data.vault_generic_secret.secrets.data.mongo_db_security_group_tag_filter
   mongo_export_collection               = data.vault_generic_secret.secrets.data.mongo_export_collection
   mongo_export_db_url                   = data.vault_generic_secret.secrets.data.mongo_export_db_url
