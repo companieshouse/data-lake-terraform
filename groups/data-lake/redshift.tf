@@ -11,4 +11,9 @@ resource "aws_redshift_cluster" "data" {
   database_name = "dev_top"
 
   vpc_security_group_ids = [aws_security_group.data.id]
+
+  depends_on = [
+    aws_security_group.data
+  ]
+
 }
