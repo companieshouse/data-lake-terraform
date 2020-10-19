@@ -53,5 +53,9 @@ resource "aws_glue_job" "data" {
     script_location = local.glue_script_location
   }
 
-  default_arguments = jsondecode(local.glue_arguments)
+  default_arguments = {
+    "--TempDir"             = local.glue_temporary_bucket_name
+    "--job-bookmark-option" = "job-bookmark-disable"
+    "--job-language"        = "python"
+  }
 }
