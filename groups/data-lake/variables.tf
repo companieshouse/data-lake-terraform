@@ -3,9 +3,20 @@ variable "aws_profile" {
   type = string
 }
 
+variable "lambda_artifact_key" {
+    default = "data-lake/Archive.zip"
+    description = "The bucket key of the lambda artifact"
+    type = string
+}
+
 variable "region" {
   description = "The AWS region in which resources will be administered"
   type = string
+}
+
+variable "release_bucket_name" {
+    description = "The name of the release bucket"
+    type = string
 }
 
 variable "service" {
