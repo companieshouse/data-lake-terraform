@@ -19,6 +19,7 @@ locals {
   redshift_cluster_identifier           = data.vault_generic_secret.secrets.data.redshift_cluster_identifier
   redshift_database_password            = data.vault_generic_secret.secrets.data.redshift_database_password
   redshift_database_username            = data.vault_generic_secret.secrets.data.redshift_database_username
+  redshift_subnet_filter                = data.vault_generic_secret.secrets.data.redshift_subnet_filter
 
   # TODO - Pull this in from network state rather than vault
   vpc_id                                = data.vault_generic_secret.secrets.data.vpc_id

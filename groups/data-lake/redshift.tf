@@ -1,3 +1,10 @@
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_redshift_subnet_group.data cluster-subnet-group-2
+resource "aws_redshift_subnet_group" "data" {
+  description = "Private subnet for redshift"
+  name       = "cluster-subnet-group-2"
+  subnet_ids = data.aws_subnet_ids.redshift_subnet.ids
+}
+
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_redshift_cluster.data redshift-cluster-3
 resource "aws_redshift_cluster" "data" {
   cluster_identifier = local.redshift_cluster_identifier
@@ -8,6 +15,7 @@ resource "aws_redshift_cluster" "data" {
   publicly_accessible = false
   skip_final_snapshot = true
 
+  cluster_subnet_group_name = aws_redshift_subnet_group.data.name
   database_name = "dev_top"
 
   vpc_security_group_ids = [aws_security_group.data.id]
