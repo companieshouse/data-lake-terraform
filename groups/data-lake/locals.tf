@@ -16,6 +16,7 @@ locals {
   mongo_export_db_url                   = data.vault_generic_secret.secrets.data.mongo_export_db_url
   mongo_export_s3_path                  = data.vault_generic_secret.secrets.data.mongo_export_s3_path
   mongo_export_subnet_ids               = data.vault_generic_secret.secrets.data.mongo_export_subnet_ids
+  redshift_cluster_identifier           = data.vault_generic_secret.secrets.data.redshift_cluster_identifier
   redshift_database_password            = data.vault_generic_secret.secrets.data.redshift_database_password
   redshift_database_username            = data.vault_generic_secret.secrets.data.redshift_database_username
 
