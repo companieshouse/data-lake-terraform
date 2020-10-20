@@ -16,7 +16,7 @@ resource "aws_redshift_cluster" "data" {
   skip_final_snapshot = true
 
   cluster_subnet_group_name = aws_redshift_subnet_group.data.name
-  database_name = "dev_top"
+  database_name = local.redshift_database_name
 
   vpc_security_group_ids = [aws_security_group.data.id]
 
