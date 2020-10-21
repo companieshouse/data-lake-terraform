@@ -4,7 +4,7 @@ variable "aws_profile" {
 }
 
 variable "lambda_artifact_key" {
-    default = "data-lake/Archive.zip"
+    default = "data-lake/Archive1.zip"
     description = "The bucket key of the lambda artifact"
     type = string
 }
