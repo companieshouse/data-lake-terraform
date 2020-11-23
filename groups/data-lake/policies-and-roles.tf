@@ -8,7 +8,7 @@ resource "aws_iam_role" "data_lake_glue" {
 data "aws_iam_policy_document" "data_lake_glue_trust" {
   statement {
 
-    # TODO add suitable sid argument
+    sid = "DataLakeTrustRole"
 
     effect = "Allow"
 
@@ -26,22 +26,16 @@ data "aws_iam_policy_document" "data_lake_glue_trust" {
   }
 }
 
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_s3_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/AmazonS3FullAccess
-resource "aws_iam_role_policy_attachment" "glue_s3_access" {
-  role       = aws_iam_role.data_lake_glue.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_ec2_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/AmazonEC2FullAccess
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_ec2_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
 resource "aws_iam_role_policy_attachment" "glue_ec2_access" {
   role       = aws_iam_role.data_lake_glue.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_iam_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/IAMFullAccess
+# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_iam_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/IAMReadOnlyAccess
 resource "aws_iam_role_policy_attachment" "glue_iam_access" {
   role       = aws_iam_role.data_lake_glue.name
-  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_cloudwatch_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/CloudWatchFullAccess
@@ -84,9 +78,25 @@ resource "aws_iam_role_policy_attachment" "data_lake_glue" {
 }
 
 data "aws_iam_policy_document" "data_lake_glue" {
+
   statement {
 
-    # TODO add suitable sid argument
+    sid = "ListAccessToDataLakeBuckets"
+
+    actions = [
+      "s3:ListBucket"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.data_lake.arn}",
+      "${aws_s3_bucket.data_lake_glue_temporary.arn}",
+      "${aws_s3_bucket.data_lake_glue_scripts.arn}",
+    ]
+  }
+
+  statement {
+
+    sid = "GetPutAccessToDataLakeBuckets"
 
     actions = [
       "s3:GetObject",
@@ -94,7 +104,9 @@ data "aws_iam_policy_document" "data_lake_glue" {
     ]
 
     resources = [
-      "arn:aws:s3:::datalakepre*"
+      "${aws_s3_bucket.data_lake.arn}/*",
+      "${aws_s3_bucket.data_lake_glue_temporary.arn}/*",
+      "${aws_s3_bucket.data_lake_glue_scripts.arn}/*"
     ]
   }
 }
@@ -129,12 +141,6 @@ resource "aws_iam_role" "mongo_export" {
   assume_role_policy = data.aws_iam_policy_document.mongo_export_trust.json
 }
 
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.s3_access MongoEFSToS3Export-role-ubndlz9s/arn:aws:iam::aws:policy/AmazonS3FullAccess
-resource "aws_iam_role_policy_attachment" "s3_access" {
-  role       = aws_iam_role.mongo_export.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.vpc_access MongoEFSToS3Export-role-ubndlz9s/arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 resource "aws_iam_role_policy_attachment" "vpc_access" {
   role       = aws_iam_role.mongo_export.name
@@ -144,7 +150,7 @@ resource "aws_iam_role_policy_attachment" "vpc_access" {
 data "aws_iam_policy_document" "mongo_export_trust" {
   statement {
 
-    # TODO add suitable sid argument
+    sid = "MongoExportTrustRole"
 
     effect = "Allow"
 
@@ -160,4 +166,46 @@ data "aws_iam_policy_document" "mongo_export_trust" {
       ]
     }
   }
+}
+
+data "aws_iam_policy_document" "mongo_export" {
+
+  statement {
+
+    sid = "ListAccessToDataLakeBucket"
+
+    actions = [
+      "s3:ListBucket"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.data_lake.arn}"
+    ]
+  }
+
+  statement {
+
+    sid = "GetPutAccessToDataLakeBucket"
+
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.data_lake.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "mongo_export" {
+  name   = "DatalakeBucketAccess"
+  policy = data.aws_iam_policy_document.mongo_export.json
+}
+
+resource "aws_iam_role_policy_attachment" "mongo_export" {
+  role       = aws_iam_role.mongo_export.name
+  policy_arn = aws_iam_policy.mongo_export.arn
 }
