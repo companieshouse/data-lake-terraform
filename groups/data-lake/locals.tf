@@ -3,7 +3,7 @@ data "vault_generic_secret" "secrets" {
 }
 
 locals {
-  bucket                                = data.vault_generic_secret.secrets.data.bucket
+  bucket_name                           = data.vault_generic_secret.secrets.data.bucket_name
   glue_availability_zone                = data.vault_generic_secret.secrets.data.glue_availability_zone
   glue_catalog_database                 = data.vault_generic_secret.secrets.data.glue_catalog_database
   glue_scripts_bucket_name              = data.vault_generic_secret.secrets.data.glue_scripts_bucket_name
