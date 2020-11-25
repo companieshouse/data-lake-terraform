@@ -55,11 +55,11 @@ resource "aws_glue_job" "data" {
   connections = [aws_glue_connection.data.name]
 
   command {
-    script_location = "s3://${local.glue_scripts_bucket_name}%{ if local.glue_scripts_bucket_path != "" }/${local.glue_scripts_bucket_path}%{ endif }/redshift_load_from_s3_deletefirst_v2"
+    script_location = "s3://${local.bucket_name}/${local.glue_scripts_bucket_path}/redshift_load_from_s3_deletefirst_v2"
   }
 
   default_arguments = {
-    "--TempDir"             = "s3://${local.glue_temporary_bucket_name}%{ if local.glue_temporary_bucket_path != "" }/${local.glue_temporary_bucket_path}%{ endif }"
+    "--TempDir"             = "s3://${local.bucket_name}/${local.glue_temporary_bucket_path}"
     "--job-bookmark-option" = "job-bookmark-disable"
     "--job-language"        = "python"
   }

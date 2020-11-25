@@ -81,16 +81,14 @@ data "aws_iam_policy_document" "data_lake_glue" {
 
   statement {
 
-    sid = "ListAccessToDataLakeBuckets"
+    sid = "ListAccessToDataLakeBucket"
 
     actions = [
       "s3:ListBucket"
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}",
-      "${aws_s3_bucket.data_lake_glue_temporary.arn}",
-      "${aws_s3_bucket.data_lake_glue_scripts.arn}",
+      "${aws_s3_bucket.data_lake.arn}"
     ]
   }
 
@@ -104,9 +102,7 @@ data "aws_iam_policy_document" "data_lake_glue" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}/*",
-      "${aws_s3_bucket.data_lake_glue_temporary.arn}/*",
-      "${aws_s3_bucket.data_lake_glue_scripts.arn}/*"
+      "${aws_s3_bucket.data_lake.arn}/*"
     ]
   }
 }

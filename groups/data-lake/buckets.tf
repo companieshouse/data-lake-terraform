@@ -4,14 +4,16 @@ resource "aws_s3_bucket" "data_lake" {
   acl    = "private"
 }
 
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_s3_bucket.data_lake_glue_temporary aws-glue-temporary-169942020521-eu-west-2
-resource "aws_s3_bucket" "data_lake_glue_temporary" {
-  bucket = local.glue_temporary_bucket_name
+resource "aws_s3_bucket_object" "glue_scripts" {
+  bucket = aws_s3_bucket.data_lake.id
   acl    = "private"
+  key    = "${local.glue_scripts_bucket_path}/"
+  source = "/dev/null"
 }
 
-# terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_s3_bucket.data_lake_glue_scripts aws-glue-scripts-169942020521-eu-west-2
-resource "aws_s3_bucket" "data_lake_glue_scripts" {
-  bucket = local.glue_scripts_bucket_name
+resource "aws_s3_bucket_object" "glue_temporary" {
+  bucket = aws_s3_bucket.data_lake.id
   acl    = "private"
+  key    = "${local.glue_temporary_bucket_path}/"
+  source = "/dev/null"
 }
