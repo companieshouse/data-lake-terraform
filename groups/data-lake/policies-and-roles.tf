@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "data_lake_glue" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}"
+      "${data.aws_s3_bucket.data_lake.arn}"
     ]
   }
 
@@ -102,7 +102,7 @@ data "aws_iam_policy_document" "data_lake_glue" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}/*"
+      "${data.aws_s3_bucket.data_lake.arn}/*"
     ]
   }
 }
@@ -175,7 +175,7 @@ data "aws_iam_policy_document" "mongo_export" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}"
+      "${data.aws_s3_bucket.data_lake.arn}"
     ]
   }
 
@@ -191,7 +191,7 @@ data "aws_iam_policy_document" "mongo_export" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}/*"
+      "${data.aws_s3_bucket.data_lake.arn}/*"
     ]
   }
 }

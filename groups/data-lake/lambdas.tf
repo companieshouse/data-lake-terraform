@@ -17,7 +17,7 @@ resource "aws_lambda_function" "mongo_export" {
     variables = {
       COLLECTION = local.mongo_export_collection
       MONGO_URL = local.mongo_export_db_url
-      S3_PATH   = "${aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
+      S3_PATH   = "${data.aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
     }
   }
 }
