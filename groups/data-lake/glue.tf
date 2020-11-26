@@ -10,7 +10,7 @@ resource "aws_glue_crawler" "data" {
   role          = aws_iam_role.data_lake_glue.arn
 
   s3_target {
-    path = "s3://${aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
+    path = "s3://${data.aws_s3_bucket.data_lake.id}/${local.mongo_export_s3_path}"
   }
 
   configuration = <<EOF
