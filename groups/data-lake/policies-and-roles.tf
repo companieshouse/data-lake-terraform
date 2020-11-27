@@ -181,11 +181,12 @@ data "aws_iam_policy_document" "mongo_export" {
 
   statement {
 
-    sid = "GetPutAccessToDataLakeBucket"
+    sid = "WorkingAccessToDataLakeBucket"
 
     effect = "Allow"
 
     actions = [
+      "s3:DeleteObject",
       "s3:GetObject",
       "s3:PutObject"
     ]
