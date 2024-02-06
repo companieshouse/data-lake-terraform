@@ -24,3 +24,9 @@ variable "service" {
   description = "The service name to be used when creating AWS resources"
   default     = "data-lake"
 }
+
+variable "lambda_memory_size" {
+  type        = number
+  description = "The maximum memory size to allocate to the lambda"
+  default     = 128
+}
