@@ -14,11 +14,20 @@ resource "aws_redshift_cluster" "data" {
 
   publicly_accessible = false
   skip_final_snapshot = true
+  encrypted           = true
 
   cluster_subnet_group_name = aws_redshift_subnet_group.data.name
   database_name = local.redshift_database_name
 
+  automated_snapshot_retention_period = 7
+
   vpc_security_group_ids = [aws_security_group.data.id]
+
+  logging {
+    enable               = true
+    log_destination_type = "cloudwatch"
+    log_exports          = ["connectionlog", "userlog"]
+  }
 
   depends_on = [
     aws_security_group.data

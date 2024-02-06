@@ -7,6 +7,7 @@ resource "aws_lambda_function" "mongo_export" {
   role          = aws_iam_role.mongo_export.arn
   runtime       = "nodejs10.x"
   timeout       = 303
+  memory_size   = var.lambda_memory_size
 
   vpc_config {
     subnet_ids         = split(",", local.mongo_export_subnet_ids)
