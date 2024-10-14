@@ -1,10 +1,3 @@
-data "aws_security_group" "mongo_db" {
-  filter {
-    name = "tag:Name"
-    values = [local.mongo_db_security_group_tag_filter]
-  }
-}
-
 # terraform-runner -g data-lake -c apply -p development-eu-west-2 -- -target=aws_security_group.data
 resource "aws_security_group" "data" {
 
@@ -17,7 +10,7 @@ resource "aws_security_group" "data" {
     from_port       = 5439
     to_port         = 5439
     protocol        = "tcp"
-    prefix_list_ids = [var.admin_prefix_list_id]
+    prefix_list_ids = [local.admin_prefix_list_id]
   }
 
   ingress {
@@ -55,7 +48,7 @@ resource "aws_security_group" "data" {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    prefix_list_ids = ["${var.admin_prefix_list_id}"]
+    prefix_list_ids = [local.admin_prefix_list_id]
   }
 
   ingress {

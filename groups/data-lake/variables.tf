@@ -14,8 +14,8 @@ variable "region" {
   type = string
 }
 
-variable "admin_prefix_list_id" {
-  description = "Admin prefixed list to allow inbound traffic from internal cidrs, defaults to the dev pl"
+variable "admin_prefix_list_name" {
+  description = "Admin prefixed list to allow inbound traffic from internal cidrs"
   type = string
 }
 

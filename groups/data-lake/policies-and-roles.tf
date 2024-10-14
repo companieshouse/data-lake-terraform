@@ -5,27 +5,6 @@ resource "aws_iam_role" "data_lake_glue" {
   assume_role_policy = data.aws_iam_policy_document.data_lake_glue_trust.json
 }
 
-data "aws_iam_policy_document" "data_lake_glue_trust" {
-  statement {
-
-    sid = "DataLakeTrustRole"
-
-    effect = "Allow"
-
-    actions = [
-      "sts:AssumeRole"
-    ]
-
-    principals {
-      type = "Service"
-
-      identifiers = [
-        "glue.amazonaws.com"
-      ]
-    }
-  }
-}
-
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy_attachment.glue_ec2_access AWSGlueServiceRole-DataLakeGlue/arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
 resource "aws_iam_role_policy_attachment" "glue_ec2_access" {
   role       = aws_iam_role.data_lake_glue.name
@@ -77,57 +56,11 @@ resource "aws_iam_role_policy_attachment" "data_lake_glue" {
   policy_arn = aws_iam_policy.data_lake_glue.arn
 }
 
-data "aws_iam_policy_document" "data_lake_glue" {
-
-  statement {
-
-    sid = "ListAccessToDataLakeBucket"
-
-    actions = [
-      "s3:ListBucket"
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.data_lake.arn}"
-    ]
-  }
-
-  statement {
-
-    sid = "GetPutAccessToDataLakeBuckets"
-
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject"
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.data_lake.arn}/*"
-    ]
-  }
-}
-
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role_policy.data_lake_data AWSGlueServiceRole-DataLakeGlue:DatalakeDataAccess
 resource "aws_iam_role_policy" "data_lake_data" {
   name   = "DatalakeDataAccess"
   role   = aws_iam_role.data_lake_glue.name
   policy = data.aws_iam_policy_document.data_lake_data.json
-}
-
-data "aws_iam_policy_document" "data_lake_data" {
-  statement {
-
-    sid = "Lakeformation"
-
-    actions = [
-      "lakeformation:GetDataAccess",
-      "lakeformation:GrantPermissions"
-    ]
-
-    resources = [
-      "*"
-    ]
-  }
 }
 
 # terraform-runner -g data-lake -c import -p development-eu-west-2 -- aws_iam_role.mongo_export MongoEFSToS3Export-role-ubndlz9s
@@ -141,60 +74,6 @@ resource "aws_iam_role" "mongo_export" {
 resource "aws_iam_role_policy_attachment" "vpc_access" {
   role       = aws_iam_role.mongo_export.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
-
-data "aws_iam_policy_document" "mongo_export_trust" {
-  statement {
-
-    sid = "MongoExportTrustRole"
-
-    effect = "Allow"
-
-    actions = [
-      "sts:AssumeRole"
-    ]
-
-    principals {
-      type = "Service"
-
-      identifiers = [
-        "lambda.amazonaws.com"
-      ]
-    }
-  }
-}
-
-data "aws_iam_policy_document" "mongo_export" {
-
-  statement {
-
-    sid = "ListAccessToDataLakeBucket"
-
-    actions = [
-      "s3:ListBucket"
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.data_lake.arn}"
-    ]
-  }
-
-  statement {
-
-    sid = "WorkingAccessToDataLakeBucket"
-
-    effect = "Allow"
-
-    actions = [
-      "s3:DeleteObject",
-      "s3:GetObject",
-      "s3:PutObject"
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.data_lake.arn}/*"
-    ]
-  }
 }
 
 resource "aws_iam_policy" "mongo_export" {

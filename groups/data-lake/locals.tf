@@ -1,39 +1,3 @@
-data "vault_generic_secret" "secrets" {
-  path = "applications/${var.aws_profile}/${var.service}"
-}
-
-data "aws_subnets" "application_subnets" {
-  filter {
-    name   = "tag:NetworkType"
-    values = ["private"]
-  }
-  tags = {
-    Name = "platform-applications"
-  }
-}
-
-data "aws_subnet" "application" {
-  for_each = toset(data.aws_subnets.application_subnets.ids)
-
-  id = each.value
-}
-
-data "aws_subnets" "data_subnets" {
-  filter {
-    name   = "tag:NetworkType"
-    values = ["private"]
-  }
-  tags = {
-    Name = "platform-data"
-  }
-}
-
-data "aws_subnet" "data" {
-  for_each = toset(data.aws_subnets.data_subnets.ids)
-
-  id = each.value
-}
-
 locals {
   bucket_name                        = data.vault_generic_secret.secrets.data.bucket_name
   glue_availability_zone             = data.vault_generic_secret.secrets.data.glue_availability_zone
@@ -56,6 +20,7 @@ locals {
   data_subnet_ids                    = join(",", data.aws_subnets.data_subnets.ids)
   data_subnet_cidrs                  = [ for s in data.aws_subnet.data : s.cidr_block ]
   ingress_cidrs                      = concat(local.application_subnet_cidrs, local.data_subnet_cidrs)
+  admin_prefix_list_id               = data.aws_ec2_managed_prefix_list.admin_prefix_list_id.id
 
   # TODO - Pull this in from network state rather than vault
   vpc_id                                = data.vault_generic_secret.secrets.data.vpc_id
