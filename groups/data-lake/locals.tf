@@ -2,6 +2,26 @@ data "vault_generic_secret" "secrets" {
   path = "applications/${var.aws_profile}/${var.service}"
 }
 
+data "aws_subnets" "application_subnets" {
+  filter {
+    name   = "tag:NetworkType"
+    values = ["private"]
+  }
+  tags = {
+    Name = "platform-applications"
+  }
+}
+
+data "aws_subnets" "data_subnets" {
+  filter {
+    name   = "tag:NetworkType"
+    values = ["private"]
+  }
+  tags = {
+    Name = "platform-data"
+  }
+}
+
 locals {
   bucket_name                           = data.vault_generic_secret.secrets.data.bucket_name
   glue_availability_zone                = data.vault_generic_secret.secrets.data.glue_availability_zone
@@ -19,6 +39,8 @@ locals {
   redshift_database_password            = data.vault_generic_secret.secrets.data.redshift_database_password
   redshift_database_username            = data.vault_generic_secret.secrets.data.redshift_database_username
   redshift_subnet_filter                = data.vault_generic_secret.secrets.data.redshift_subnet_filter
+  application_subnet_ids                = join(",", data.aws_subnets.application_subnets.ids)
+  data_subnet_ids                       = join(",", data.aws_subnets.data_subnets.ids)
 
   # TODO - Pull this in from network state rather than vault
   vpc_id                                = data.vault_generic_secret.secrets.data.vpc_id
