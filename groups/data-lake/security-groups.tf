@@ -13,12 +13,19 @@ resource "aws_security_group" "data" {
   vpc_id = local.vpc_id
 
   ingress {
-    description = "Internal access"
+    description     = "Internal access from prefix list"
     from_port       = 5439
     to_port         = 5439
     protocol        = "tcp"
-    prefix_list_ids = ["${var.admin_prefix_list_id}"]
-    cidr_blocks     = [local.data_subnet_ids, local.application_subnet_ids]
+    prefix_list_ids = [var.admin_prefix_list_id]
+  }
+
+  ingress {
+    description     = "Internal access from application CIDRs"
+    from_port       = 5439
+    to_port         = 5439
+    protocol        = "tcp"
+    cidr_blocks     = local.ingress_cidrs
   }
 
   ingress {
@@ -44,11 +51,19 @@ resource "aws_security_group" "data" {
   }
 
   ingress {
+    description     = "Internal access from prefix list"
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
     prefix_list_ids = ["${var.admin_prefix_list_id}"]
-    cidr_blocks     = [local.data_subnet_ids, local.application_subnet_ids]
+  }
+
+  ingress {
+    description     = "MySQL access from application CIDRs"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    cidr_blocks     = local.ingress_cidrs
   }
 
   ingress {
