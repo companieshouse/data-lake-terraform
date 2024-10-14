@@ -14,6 +14,11 @@ variable "region" {
   type = string
 }
 
+variable "admin_prefix_list_name" {
+  description = "Admin prefixed list to allow inbound traffic from internal cidrs"
+  type = string
+}
+
 variable "release_bucket_name" {
     description = "The name of the release bucket"
     type = string

@@ -1,1 +1,3 @@
 lambda_memory_size = 512
+# Allow access from cidrs defined within administration-cidr-ranges prefix list on live
+admin_prefix_list_name = "administration-cidr-ranges"
