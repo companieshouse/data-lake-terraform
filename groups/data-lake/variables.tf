@@ -3,6 +3,11 @@ variable "aws_profile" {
   type = string
 }
 
+variable "account" {
+  type = string
+  description = "This value is for the vault path to retrieve secrets per envioronment(development, staging or live)"
+}
+
 variable "lambda_artifact_key" {
     default = "data-lake/Archive1.zip"
     description = "The bucket key of the lambda artifact"
