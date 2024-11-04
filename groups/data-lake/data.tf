@@ -8,7 +8,7 @@ data "aws_subnets" "application_subnets" {
     values = ["private"]
   }
   tags = {
-    Name = "platform-applications"
+    Name = "*platform-applications*"
   }
 }
 
@@ -24,7 +24,7 @@ data "aws_subnets" "data_subnets" {
     values = ["private"]
   }
   tags = {
-    Name = "platform-data"
+    Name = "*platform-data*"
   }
 }
 
